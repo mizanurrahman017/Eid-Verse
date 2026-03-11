@@ -8,10 +8,10 @@ const Navbar = () => {
 
   const navItems = [
     { name: "Home", path: "/" },
-    { name: "Countdown", path: "/countdown" },
+    // { name: "Countdown", path: "/countdown" },
     { name: "Wish Generator", path: "/wish" },
-    { name: "Greeting Card", path: "/card" },
-    { name: "Gallery", path: "/gallery" }
+    // { name: "Greeting Card", path: "/card" },
+    // { name: "Gallery", path: "/gallery" }
   ];
 
   return (
