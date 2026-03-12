@@ -46,18 +46,31 @@ const Wish = () => {
   if (!cardRef.current) return;
 
   const canvas = await html2canvas(cardRef.current, {
-    scale: 2,
+    scale: 4, // 4K sharp quality
+    useCORS: true,
+    backgroundColor: null
   });
 
   const image = canvas.toDataURL("image/png");
 
-  const link = document.createElement("a");
-  link.href = image;
-  link.download = `EidWish_${name || "Guest"}.png`;
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  if (isMobile) {
+    // Mobile → open image (user can save to gallery)
+    const newTab = window.open();
+    newTab.document.write(
+      `<img src="${image}" style="width:100%;height:auto;" />`
+    );
+  } else {
+    // Desktop → direct download
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `EidWish_${name || "Guest"}.png`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 };
 
   // WhatsApp share
