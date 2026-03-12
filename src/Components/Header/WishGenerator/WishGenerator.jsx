@@ -43,18 +43,22 @@ const Wish = () => {
 
   // Download card
   const downloadCard = async () => {
+  if (!cardRef.current) return;
 
-    if (!cardRef.current) return;
+  const canvas = await html2canvas(cardRef.current, {
+    scale: 2,
+  });
 
-    const canvas = await html2canvas(cardRef.current, {
-      scale: 2,
-    });
+  const image = canvas.toDataURL("image/png");
 
-    const link = document.createElement("a");
-    link.download = `EidWish_${name || "Guest"}.png`;
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  };
+  const link = document.createElement("a");
+  link.href = image;
+  link.download = `EidWish_${name || "Guest"}.png`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 
   // WhatsApp share
   const shareWhatsApp = () => {
@@ -74,12 +78,12 @@ const Wish = () => {
       {/* Input */}
       <div className="flex flex-col md:flex-row gap-4 mb-6 w-full max-w-xl">
 
-       <input
-    type="text"
-    placeholder="Enter your name..."
-    value={name}
-    onChange={(e) => setName(e.target.value)}
-    className="
+        <input
+          type="text"
+          placeholder="Enter your name..."
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="
       w-full 
       md:flex-1 
       px-6 py-3 
@@ -94,7 +98,7 @@ const Wish = () => {
       focus:ring-opacity-50
       transition
     "
-  />
+        />
 
         <button
           onClick={generateWish}
@@ -123,15 +127,15 @@ const Wish = () => {
           className="bg-gradient-to-r from-[#111827] via-[#1f2937] to-[#111827] p-6 rounded-3xl shadow-2xl max-w-xl text-center"
         >
 
-        {image && (
-  <div className="w-full h-96 md:h-[500px] relative rounded-2xl overflow-hidden shadow-xl mb-4">
-    <img
-      src={image}
-      alt="Uploaded"
-      className="w-full h-full object-cover"
-    />
-  </div>
-)}
+          {image && (
+            <div className="w-full h-96 md:h-[500px] relative rounded-2xl overflow-hidden shadow-xl mb-4">
+              <img
+                src={image}
+                alt="Uploaded"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
 
           <p className="text-lg md:text-xl mb-6">{wish}</p>
 
