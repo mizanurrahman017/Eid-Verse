@@ -21,9 +21,11 @@ const Wish = () => {
 
   const generateWish = () => {
     const randomWish = wishes[Math.floor(Math.random() * wishes.length)];
+
     setGeneratedWish(
       userName ? randomWish.replace("Eid", `Eid, ${userName}`) : randomWish
     );
+
     setCopied(false);
   };
 
@@ -31,41 +33,67 @@ const Wish = () => {
     if (generatedWish) {
       navigator.clipboard.writeText(generatedWish);
       setCopied(true);
+
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
-  // Image Upload
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
+
     if (file) {
       setImage(URL.createObjectURL(file));
     }
   };
 
-  // Download Card
+  // DOWNLOAD FUNCTION
   const downloadCard = async () => {
     if (!cardRef.current) return;
 
     const canvas = await html2canvas(cardRef.current, {
       scale: 4,
       useCORS: true,
-      backgroundColor: null,
+      backgroundColor: "#0f172a",
     });
 
-    canvas.toBlob((blob) => {
-      const url = URL.createObjectURL(blob);
+    const blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, "image/png")
+    );
 
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `EidWish_${userName || "Card"}.png`;
+    // 📱 Mobile share
+    if (navigator.share) {
+      try {
+        const file = new File([blob], `EidWish_${userName || "Card"}.png`, {
+          type: "image/png",
+        });
 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "Eid Wish Card",
+          });
 
-      URL.revokeObjectURL(url);
-    }, "image/png");
+          return;
+        }
+      } catch (err) {}
+    }
+
+    // 💻 Desktop download
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+
+    link.download = `EidWish_${userName || "Card"}.png`;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -73,15 +101,15 @@ const Wish = () => {
       id="wish"
       className="relative w-full min-h-screen flex flex-col justify-center items-center px-4 bg-gradient-to-b from-[#0f172a] to-[#1e293b] overflow-hidden"
     >
-      {/* Floating Moon */}
+      {/* Moon */}
       <motion.div
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: [0, -20, 0], opacity: [0, 1, 1] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-20 right-10 w-36 h-36 bg-yellow-200 rounded-full shadow-[0_0_50px_20px_rgba(255,255,200,0.3)]"
+        transition={{ duration: 4, repeat: Infinity }}
+        className="absolute top-20 right-10 w-36 h-36 bg-yellow-200 rounded-full shadow-[0_0_60px_rgba(255,255,200,0.4)]"
       />
 
-      {/* Floating Stars */}
+      {/* Stars */}
       {Array.from({ length: 20 }).map((_, i) => (
         <motion.div
           key={i}
@@ -101,23 +129,23 @@ const Wish = () => {
         />
       ))}
 
-      {/* Title */}
       <h2 className="text-4xl md:text-5xl font-bold mb-12 text-green-400 text-center">
         Generate Your Eid Wish 🎁
       </h2>
 
-      {/* Input & Button */}
+      {/* Input + Button */}
       <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-6 w-full max-w-4xl">
         <input
           type="text"
           placeholder="Enter your name..."
           value={userName}
           onChange={(e) => setUserName(e.target.value)}
-          className="w-full md:flex-1 px-6 py-3 rounded-full text-black font-medium text-base md:text-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/90 dark:bg-black/80"
+          className="w-full md:flex-1 px-6 py-3 rounded-full text-black font-medium text-base md:text-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 bg-white/90"
         />
+
         <button
           onClick={generateWish}
-          className="px-8 py-3 rounded-full bg-green-500 hover:bg-green-600 font-semibold transition shadow-lg hover:shadow-2xl"
+          className="px-8 py-3 rounded-full bg-green-500 hover:bg-green-600 font-semibold shadow-lg"
         >
           Generate
         </button>
@@ -138,13 +166,8 @@ const Wish = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative w-full max-w-2xl bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#1e293b] p-8 rounded-3xl shadow-2xl border-2 border-green-500"
+          className="relative w-full max-w-2xl bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-[#1e293b] p-8 rounded-3xl shadow-2xl border-2 border-yellow-400"
         >
-          {/* Decorative Stars */}
-          <div className="absolute top-4 left-4 w-3 h-3 bg-yellow-300 rounded-full animate-pulse" />
-          <div className="absolute bottom-4 right-4 w-3 h-3 bg-pink-400 rounded-full animate-pulse" />
-
-          {/* Uploaded Image */}
           {image && (
             <div className="w-full h-64 md:h-80 rounded-2xl overflow-hidden mb-6">
               <img
@@ -159,18 +182,17 @@ const Wish = () => {
             {generatedWish}
           </p>
 
-          {/* Buttons */}
           <div className="flex justify-center md:justify-end items-center gap-4">
             <button
               onClick={copyWish}
-              className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-full font-semibold text-sm transition shadow-lg hover:shadow-2xl"
+              className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-full font-semibold text-sm"
             >
               Copy
             </button>
 
             <button
               onClick={downloadCard}
-              className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-full font-semibold text-sm transition shadow-lg hover:shadow-2xl"
+              className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded-full font-semibold text-sm"
             >
               Download Card
             </button>
