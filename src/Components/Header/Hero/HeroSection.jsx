@@ -46,7 +46,7 @@ const HeroSection = () => {
                 <p className="text-gray-300 text-lg md:text-2xl mb-8 animate-fadeIn">
                     Celebrate Eid with Wishes, Countdown & Joy
                 </p>
-                <NavLink
+                {/* <NavLink
                     to="/wish" // Single-page scroll এর জন্য id
                     onClick={(e) => {
                         e.preventDefault(); // Prevent default link jump
@@ -56,7 +56,7 @@ const HeroSection = () => {
                     className="bg-green-500 hover:bg-green-600 px-8 py-3 rounded-full font-semibold text-lg transition"
                 >
                     Generate Your Wish
-                </NavLink>
+                </NavLink> */}
             </div>
 
         </section>

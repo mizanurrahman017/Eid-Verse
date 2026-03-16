@@ -41,49 +41,26 @@ const Wish = () => {
     }
   };
 
-  // Download card
+  // Download card (REAL DOWNLOAD)
   const downloadCard = async () => {
     if (!cardRef.current) return;
 
     const canvas = await html2canvas(cardRef.current, {
-      scale: 4, // 4K quality
+      scale: 4,
       useCORS: true,
       backgroundColor: null
     });
 
-    canvas.toBlob(async (blob) => {
-      const file = new File([blob], `EidWish_${name || "Guest"}.png`, {
-        type: "image/png",
-      });
+    const image = canvas.toDataURL("image/png");
 
-      // Mobile share → save to gallery
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: "Eid Wish Card",
-          });
-          return;
-        } catch (err) {
-          console.log("Share cancelled");
-        }
-      }
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `EidWish_${name || "Guest"}.png`;
 
-      // Desktop download fallback
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `EidWish_${name || "Guest"}.png`;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      URL.revokeObjectURL(url);
-    }, "image/png");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
-
-
 
   // WhatsApp share
   const shareWhatsApp = () => {
@@ -108,21 +85,7 @@ const Wish = () => {
           placeholder="Enter your name..."
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="
-      w-full 
-      md:flex-1 
-      px-6 py-3 
-      rounded-full 
-      text-black 
-      text-base md:text-lg
-      placeholder-gray-500 
-      bg-white/90 
-      focus:outline-none 
-      focus:ring-2 
-      focus:ring-green-400 
-      focus:ring-opacity-50
-      transition
-    "
+          className="w-full md:flex-1 px-6 py-3 rounded-full text-black text-base md:text-lg placeholder-gray-500 bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-400"
         />
 
         <button
