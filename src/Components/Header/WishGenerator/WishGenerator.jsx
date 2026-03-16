@@ -41,26 +41,52 @@ const Wish = () => {
     }
   };
 
-  // Download card (REAL DOWNLOAD)
   const downloadCard = async () => {
-    if (!cardRef.current) return;
+  if (!cardRef.current) return;
 
-    const canvas = await html2canvas(cardRef.current, {
-      scale: 4,
-      useCORS: true,
-      backgroundColor: null
-    });
+  const canvas = await html2canvas(cardRef.current, {
+    scale: 4,
+    useCORS: true,
+    backgroundColor: null,
+  });
 
-    const image = canvas.toDataURL("image/png");
+  const blob = await new Promise((resolve) =>
+    canvas.toBlob(resolve, "image/png")
+  );
 
-    const link = document.createElement("a");
-    link.href = image;
-    link.download = `EidWish_${name || "Guest"}.png`;
+  const fileName = `EidWish_${name || "Guest"}.png`;
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  // detect mobile device
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // 📱 Mobile → share sheet (Save image / Gallery)
+  if (isMobile && navigator.share && navigator.canShare) {
+    try {
+      const file = new File([blob], fileName, { type: "image/png" });
+
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "Eid Wish Card",
+        });
+        return;
+      }
+    } catch (e) {}
+  }
+
+  // 💻 Desktop → direct download
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+};
 
   // WhatsApp share
   const shareWhatsApp = () => {
