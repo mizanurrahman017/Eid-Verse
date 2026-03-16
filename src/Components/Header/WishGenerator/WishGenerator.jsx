@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import html2canvas from "html2canvas";
 
 const Wish = () => {
-
   const [name, setName] = useState("");
   const [wish, setWish] = useState("");
   const [image, setImage] = useState(null);
@@ -17,7 +16,7 @@ const Wish = () => {
     "May this Eid bring your family together with love and laughter.",
     "Sending you heartfelt wishes for a joyous Eid.",
     "Eid Mubarak! May your prayers be accepted.",
-    "May your Eid be filled with love, light, and blessings."
+    "May your Eid be filled with love, light, and blessings.",
   ];
 
   // Generate wish
@@ -36,57 +35,63 @@ const Wish = () => {
   // Upload image
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
-    }
+    if (file) setImage(URL.createObjectURL(file));
   };
 
+  // Download / Preview card
   const downloadCard = async () => {
-  if (!cardRef.current) return;
+    if (!cardRef.current) return;
 
-  const canvas = await html2canvas(cardRef.current, {
-    scale: 4,
-    useCORS: true,
-    backgroundColor: null,
-  });
+    const canvas = await html2canvas(cardRef.current, {
+      scale: 4,
+      useCORS: true,
+      backgroundColor: null,
+    });
 
-  const blob = await new Promise((resolve) =>
-    canvas.toBlob(resolve, "image/png")
-  );
+    const dataUrl = canvas.toDataURL("image/png");
+    const fileName = `EidWish_${name || "Guest"}.png`;
 
-  const fileName = `EidWish_${name || "Guest"}.png`;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  // detect mobile device
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile) {
+      // Mobile → open preview (long press → save)
+      const newTab = window.open();
+      newTab.document.write(`
+        <html>
+          <head>
+            <title>Save Image</title>
+            <style>
+              body{
+                margin:0;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                height:100vh;
+                background:black;
+              }
+              img{
+                max-width:100%;
+                height:auto;
+              }
+            </style>
+          </head>
+          <body>
+            <img src="${dataUrl}" alt="Eid Wish Card"/>
+          </body>
+        </html>
+      `);
+      return;
+    }
 
-  // 📱 Mobile → share sheet (Save image / Gallery)
-  if (isMobile && navigator.share && navigator.canShare) {
-    try {
-      const file = new File([blob], fileName, { type: "image/png" });
+    // Desktop → direct download
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = fileName;
 
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "Eid Wish Card",
-        });
-        return;
-      }
-    } catch (e) {}
-  }
-
-  // 💻 Desktop → direct download
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  URL.revokeObjectURL(url);
-};
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // WhatsApp share
   const shareWhatsApp = () => {
@@ -95,7 +100,6 @@ const Wish = () => {
   };
 
   return (
-
     <div className="min-h-screen bg-[#0f172a] text-white flex flex-col items-center justify-center px-4 py-16">
 
       {/* Title */}
@@ -105,13 +109,12 @@ const Wish = () => {
 
       {/* Input */}
       <div className="flex flex-col md:flex-row gap-4 mb-6 w-full max-w-xl">
-
         <input
           type="text"
           placeholder="Enter your name..."
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full md:flex-1 px-6 py-3 rounded-full text-black text-base md:text-lg placeholder-gray-500 bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-400"
+          className="w-full md:flex-1 px-6 py-3 rounded-full text-black text-base md:text-lg placeholder-gray-500 bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition"
         />
 
         <button
@@ -120,7 +123,6 @@ const Wish = () => {
         >
           Generate
         </button>
-
       </div>
 
       {/* Image Upload */}
@@ -133,7 +135,6 @@ const Wish = () => {
 
       {/* Wish Card */}
       {wish && (
-
         <motion.div
           ref={cardRef}
           initial={{ scale: 0.8, opacity: 0 }}
@@ -155,7 +156,6 @@ const Wish = () => {
 
           {/* Buttons */}
           <div className="flex flex-wrap justify-center gap-3">
-
             <button
               onClick={copyWish}
               className="bg-blue-500 hover:bg-blue-600 px-5 py-2 rounded-full font-semibold"
@@ -176,11 +176,9 @@ const Wish = () => {
             >
               WhatsApp Share
             </button>
-
           </div>
 
         </motion.div>
-
       )}
 
     </div>
