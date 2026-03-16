@@ -10,6 +10,7 @@ const wishes = [
   "🏮 Joy, prosperity, and happiness to you and your family.",
   "✨ May your Eid be as bright as the moon and stars tonight.",
 ];
+// more code
 
 const Wish = () => {
   const [userName, setUserName] = useState("");
