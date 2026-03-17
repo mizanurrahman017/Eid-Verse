@@ -40,12 +40,12 @@ const Wish = () => {
     if (file) setImage(URL.createObjectURL(file));
   };
 
-  // ✅ Download / Open card (FIXED)
+  // ✅ Download Card (Image + Text)
   const downloadCard = async () => {
     if (!cardRef.current) return;
 
     const canvas = await html2canvas(cardRef.current, {
-      scale: 2, // mobile friendly
+      scale: 2,
       useCORS: true,
       backgroundColor: null,
     });
@@ -58,14 +58,13 @@ const Wish = () => {
       const url = URL.createObjectURL(blob);
 
       if (isMobile) {
-        // 📱 Mobile → open image
+        // Mobile → open image
         const newTab = window.open(url, "_blank");
-
         if (!newTab) {
           alert("Please allow popups to save image.");
         }
       } else {
-        // 💻 Desktop → download
+        // Desktop → download
         const link = document.createElement("a");
         link.href = url;
         link.download = fileName;
@@ -100,7 +99,7 @@ const Wish = () => {
           placeholder="Enter your name..."
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full md:flex-1 px-6 py-3 rounded-full text-black text-base md:text-lg placeholder-gray-500 bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-400"
+          className="w-full md:flex-1 px-6 py-3 rounded-full text-black bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-400"
         />
 
         <button
@@ -128,19 +127,25 @@ const Wish = () => {
           className="bg-gradient-to-r from-[#111827] via-[#1f2937] to-[#111827] p-6 rounded-3xl shadow-2xl max-w-xl text-center"
         >
 
-          {/* Image */}
-          {image && (
-            <div className="w-full max-h-[500px] rounded-2xl overflow-hidden shadow-xl mb-4">
+          {/* Image + Overlay Text */}
+          <div className="relative w-full max-h-[500px] rounded-2xl overflow-hidden shadow-xl mb-4">
+
+            {image && (
               <img
                 src={image}
                 alt="Uploaded"
                 className="w-full h-auto object-contain"
               />
-            </div>
-          )}
+            )}
 
-          {/* Wish Text */}
-          <p className="text-lg md:text-xl mb-6">{wish}</p>
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4">
+              <p className="text-white text-lg md:text-2xl font-bold text-center leading-relaxed drop-shadow-lg">
+                {wish}
+              </p>
+            </div>
+
+          </div>
 
           {/* Buttons */}
           <div className="flex flex-wrap justify-center gap-3">
