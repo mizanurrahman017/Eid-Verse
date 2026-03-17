@@ -10,6 +10,8 @@ const Wish = () => {
 
   const cardRef = useRef(null);
 
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
   const wishes = [
     "May Allah bless you with happiness and prosperity.",
     "Wishing you peace, joy, and endless blessings.",
@@ -38,59 +40,43 @@ const Wish = () => {
     if (file) setImage(URL.createObjectURL(file));
   };
 
-  // Download / Preview card
+  // ✅ Download / Open card (FIXED)
   const downloadCard = async () => {
     if (!cardRef.current) return;
 
     const canvas = await html2canvas(cardRef.current, {
-      scale: 4,
+      scale: 2, // mobile friendly
       useCORS: true,
       backgroundColor: null,
     });
 
-    const dataUrl = canvas.toDataURL("image/png");
     const fileName = `EidWish_${name || "Guest"}.png`;
 
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    canvas.toBlob((blob) => {
+      if (!blob) return;
 
-    if (isMobile) {
-      // Mobile → open preview (long press → save)
-      const newTab = window.open();
-      newTab.document.write(`
-        <html>
-          <head>
-            <title>Save Image</title>
-            <style>
-              body{
-                margin:0;
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                height:100vh;
-                background:black;
-              }
-              img{
-                max-width:100%;
-                height:auto;
-              }
-            </style>
-          </head>
-          <body>
-            <img src="${dataUrl}" alt="Eid Wish Card"/>
-          </body>
-        </html>
-      `);
-      return;
-    }
+      const url = URL.createObjectURL(blob);
 
-    // Desktop → direct download
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = fileName;
+      if (isMobile) {
+        // 📱 Mobile → open image
+        const newTab = window.open(url, "_blank");
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+        if (!newTab) {
+          alert("Please allow popups to save image.");
+        }
+      } else {
+        // 💻 Desktop → download
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }, "image/png");
   };
 
   // WhatsApp share
@@ -114,7 +100,7 @@ const Wish = () => {
           placeholder="Enter your name..."
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full md:flex-1 px-6 py-3 rounded-full text-black text-base md:text-lg placeholder-gray-500 bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50 transition"
+          className="w-full md:flex-1 px-6 py-3 rounded-full text-black text-base md:text-lg placeholder-gray-500 bg-white/90 focus:outline-none focus:ring-2 focus:ring-green-400"
         />
 
         <button
@@ -125,7 +111,7 @@ const Wish = () => {
         </button>
       </div>
 
-      {/* Image Upload */}
+      {/* Upload */}
       <input
         type="file"
         accept="image/*"
@@ -133,7 +119,7 @@ const Wish = () => {
         className="mb-8"
       />
 
-      {/* Wish Card */}
+      {/* Card */}
       {wish && (
         <motion.div
           ref={cardRef}
@@ -142,16 +128,18 @@ const Wish = () => {
           className="bg-gradient-to-r from-[#111827] via-[#1f2937] to-[#111827] p-6 rounded-3xl shadow-2xl max-w-xl text-center"
         >
 
+          {/* Image */}
           {image && (
-            <div className="w-full h-96 md:h-[500px] relative rounded-2xl overflow-hidden shadow-xl mb-4">
+            <div className="w-full max-h-[500px] rounded-2xl overflow-hidden shadow-xl mb-4">
               <img
                 src={image}
                 alt="Uploaded"
-                className="w-full h-full object-cover"
+                className="w-full h-auto object-contain"
               />
             </div>
           )}
 
+          {/* Wish Text */}
           <p className="text-lg md:text-xl mb-6">{wish}</p>
 
           {/* Buttons */}
@@ -167,7 +155,7 @@ const Wish = () => {
               onClick={downloadCard}
               className="bg-green-500 hover:bg-green-600 px-5 py-2 rounded-full font-semibold"
             >
-              Download Card
+              {isMobile ? "Open & Save" : "Download Card"}
             </button>
 
             <button
@@ -177,6 +165,13 @@ const Wish = () => {
               WhatsApp Share
             </button>
           </div>
+
+          {/* Mobile Hint */}
+          {isMobile && (
+            <p className="text-sm text-gray-400 mt-3">
+              👉 Open image → Tap & hold to save
+            </p>
+          )}
 
         </motion.div>
       )}
