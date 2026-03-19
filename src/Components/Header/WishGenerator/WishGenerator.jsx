@@ -74,12 +74,26 @@ const Wish = () => {
       {/* Input */}
       <div className="flex gap-4 mb-6 w-full max-w-xl">
         <input
-          type="text"
-          placeholder="Enter your name..."
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full px-6 py-3 rounded-full text-black"
-        />
+  type="text"
+  placeholder="Enter your name..."
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  className="
+    w-full 
+    px-5 py-3 
+    rounded-full 
+    bg-white 
+    text-gray-800 
+    placeholder-gray-400
+    border border-gray-300
+    shadow-sm
+    focus:outline-none 
+    focus:ring-2 
+    focus:ring-blue-500 
+    focus:border-blue-500
+    transition-all duration-300
+  "
+/>
         <button onClick={generateWish} className="bg-green-500 px-6 py-3 rounded-full">
           Generate
         </button>
