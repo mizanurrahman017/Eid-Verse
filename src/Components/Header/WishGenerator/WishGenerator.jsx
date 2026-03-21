@@ -21,6 +21,7 @@ const Wish = () => {
     "May your Eid be filled with love, light, and blessings.",
   ];
 // comment
+// comment
   const generateWish = () => {
     const randomWish = wishes[Math.floor(Math.random() * wishes.length)];
     setWish(`🌙 Eid Mubarak ${name ? name : ""}! ${randomWish}`);
